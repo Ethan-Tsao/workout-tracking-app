@@ -2,30 +2,38 @@
 import React from 'react'
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { signIn, signOut, useSession } from "next-auth/react";
-import { api } from "../utils/api";
+import { NextRouter, useRouter } from 'next/router';
+
+type Tab = {
+  name: string
+  href: string
+  current: boolean
+}
 
 const navigation = [
-  { name: 'Dashboard', href: '#', current: true },
-  { name: 'Team', href: '#', current: false },
-  { name: 'Projects', href: '#', current: false },
-  { name: 'Calendar', href: '#', current: false },
+  { name: 'Dashboard', href: '/', current: true },
+  { name: 'Charts', href: '/Charts', current: false },
+  { name: 'Calendar', href: '/Calendar', current: false },
+  { name: 'New Workout', href: '/Newworkout', current: false },
 ]
+
+const activeTab = (navArr: Tab[], router: NextRouter) => {
+  for (const tab of navArr) {
+    tab.current = tab.href === router.asPath
+  }
+}
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-
-
 const Navbar = () => {
   const { data: sessionData } = useSession();
+  const router = useRouter()
+  activeTab(navigation, router)
 
-  const { data: secretMessage } = api.example.getSecretMessage.useQuery(
-    undefined, // no input
-    { enabled: sessionData?.user !== undefined },
-  );
 
   return (
     <Disclosure as="nav" className="bg-gray-800">
@@ -76,13 +84,6 @@ const Navbar = () => {
                 </div>
               </div>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                <button
-                  type="button"
-                  className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                >
-                  <span className="sr-only">View notifications</span>
-                  <BellIcon className="h-6 w-6" aria-hidden="true" />
-                </button>
 
                 {/* Profile dropdown */}
                 {sessionData && sessionData.user.id &&
@@ -92,7 +93,7 @@ const Navbar = () => {
                         <span className="sr-only">Open user menu</span>
                         <img
                           className="h-8 w-8 rounded-full"
-                          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                          src={sessionData?.user?.image as string}
                           alt=""
                         />
                       </Menu.Button>
@@ -147,7 +148,7 @@ const Navbar = () => {
                     className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
                     onClick={sessionData ? () => void signOut() : () => void signIn()}
                   >
-                    {sessionData ? "Sign out" : "Sign in"}
+                    Sign In
                   </button>
                 }
               </div>
