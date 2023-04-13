@@ -5,9 +5,9 @@ import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 export const workoutRouter = createTRPCRouter({
   
   // Create
-  createExercise: protectedProcedure
+  createWorkout: protectedProcedure
   .input(z.object({ 
-    date: z.string(),
+    date: z.date(),
     userId: z.number()
   }))
   .mutation(({ ctx, input }) => {
@@ -15,16 +15,16 @@ export const workoutRouter = createTRPCRouter({
   }),
 
   // Read
-  getExercises: protectedProcedure
+  getWorkout: protectedProcedure
     .query(({ ctx }) => {
       return ctx.prisma.workout.findMany({include: {exercises: true}});
     }),
 
   // Update
-  updateExercise: protectedProcedure
+  updateWorkout: protectedProcedure
   .input(z.object({ 
     id: z.number(),
-    date: z.string().optional(),
+    date: z.date().optional(),
   }))
   .mutation(({ ctx, input }) => {
     const {id, ...data} = input;
@@ -32,7 +32,7 @@ export const workoutRouter = createTRPCRouter({
   }),
 
   // Delete
-  deleteExercise: protectedProcedure
+  deleteWorkout: protectedProcedure
   .input(z.number())
   .mutation(({ ctx, input }) => {
     return ctx.prisma.workout.delete({where: { id: input }})
